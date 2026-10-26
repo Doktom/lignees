@@ -11,9 +11,9 @@
     (function () {
       var t = 'manuscrit';
       try { t = localStorage.getItem('lignees_theme') || t; } catch (e) { }
-      if (t !== 'manuscrit' && t !== 'vapeur') t = 'manuscrit';
+      if (t !== 'manuscrit' && t !== 'vapeur' && t !== 'pastel') t = 'manuscrit';
       document.documentElement.dataset.theme = t;
-      document.write('<link id="theme-css" rel="stylesheet" href="css/themes/' + t + '.css">');
+      if (t !== 'pastel') document.write('<link id="theme-css" rel="stylesheet" href="css/themes/' + t + '.css">');
     })();
   </script>
 </head>
@@ -58,6 +58,8 @@
   <script src="js/core/logic.js"></script>
   <script src="js/core/chronicle.js"></script>
   <script src="js/core/bot.js"></script>
+  <script src="js/ui/render-classic.js"></script>
+  <script src="js/ui/render-palette.js"></script>
   <script src="js/ui/render.js"></script>
   <script src="js/ui/cinematic.js"></script>
   <script src="js/ui/lore.js"></script>

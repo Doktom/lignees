@@ -119,7 +119,19 @@ G.theme = (function () {
     },
   };
 
-  const THEMES = { manuscrit: MANUSCRIT, vapeur: VAPEUR };
+  // ======================================================================================
+  // Thème 3 — Pastel doux : l'interface d'origine (V1), claire, arrondie, sans feuille de style propre.
+  // Il utilise le moteur de rendu « classique » ; ses couleurs sont celles du jeu, sans transformation.
+  // ======================================================================================
+  const PASTEL = {
+    id: 'pastel', name: 'Pastel doux', tagline: 'Pastel', sheet: false,
+    desc: 'L\'interface d\'origine : tons clairs et doux, coins arrondis, lecture rapide. Le plus sobre des trois thèmes.',
+    swatch: ['#f3f1ec', '#3d6fb6', '#e9c98b', '#3f8f5f'],
+    data: { wash: {}, cat: {}, era: [], res: ['#000000', 0], enemy: ['#000000', 0], soldier: ['#000000', 0] },
+    canvas: { renderer: 'classic' },
+  };
+
+  const THEMES = { pastel: PASTEL, manuscrit: MANUSCRIT, vapeur: VAPEUR };
   let cur = THEMES[DEFAULT];
 
   // Écrit les couleurs du thème dans les tables de données.
@@ -143,6 +155,11 @@ G.theme = (function () {
   // Remplace la feuille de style du thème sans clignotement : la nouvelle est chargée avant de retirer l'ancienne.
   function swapCss(id) {
     const old = document.getElementById('theme-css');
+    if (THEMES[id].sheet === false) { // Pastel : la feuille de base suffit
+      if (old) old.remove();
+      if (G.run) G.ui && G.ui.refresh && G.ui.refresh(true);
+      return;
+    }
     if (old && old.getAttribute('href').indexOf('/' + id + '.css') >= 0) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet'; link.href = 'css/themes/' + id + '.css';

@@ -93,3 +93,9 @@ Bureau de bois, carte posée avec son ombre ; lavis par case, quadrillage de gé
 python tools/serve.py 8771
 ```
 Sauvegarde **séparée** de la version pastel (autre port = autre stockage du navigateur). Pour transférer une partie : **Paramètres → Exporter**, puis **Importer** dans l'autre version (le format est le même).
+
+## Thème Pastel doux et aiguilleur de rendu (branche style-tests)
+- Trois thèmes au choix (Paramètres → Apparence) : **Pastel doux** (l'interface d'origine, V1), **Chronique enluminée** et **Vapeur 1900**.
+- Deux moteurs de rendu de la carte : `js/ui/render-classic.js` (cases arrondies, utilisé par Pastel) et `js/ui/render-palette.js` (piloté par la palette, utilisé par les deux autres). `js/ui/render.js` est un aiguilleur : il lit `G.theme.canvas.renderer` (`'classic'` ou `'palette'`) et conserve la caméra au changement.
+- Pastel n'a pas de feuille `css/themes/` (`sheet: false`) : la feuille de base `style.css` suffit. Ses données de couleur sont celles d'origine (aucune transformation).
+- Pour un nouveau thème : copier une entrée de `theme.js`, ajouter son id à la liste de l'en-tête de `index.html`, et soit une palette (`renderer` omis), soit son propre moteur dans `G.renderers`.
