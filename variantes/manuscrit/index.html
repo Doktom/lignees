@@ -11,7 +11,7 @@
     (function () {
       var t = 'manuscrit';
       try { t = localStorage.getItem('lignees_theme') || t; } catch (e) { }
-      if (t !== 'manuscrit' && t !== 'vapeur' && t !== 'pastel') t = 'manuscrit';
+      if (['manuscrit', 'vapeur', 'pastel', 'neon', 'atelier'].indexOf(t) < 0) t = 'manuscrit';
       document.documentElement.dataset.theme = t;
       if (t !== 'pastel') document.write('<link id="theme-css" rel="stylesheet" href="css/themes/' + t + '.css">');
     })();

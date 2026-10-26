@@ -99,3 +99,9 @@ Sauvegarde **séparée** de la version pastel (autre port = autre stockage du na
 - Deux moteurs de rendu de la carte : `js/ui/render-classic.js` (cases arrondies, utilisé par Pastel) et `js/ui/render-palette.js` (piloté par la palette, utilisé par les deux autres). `js/ui/render.js` est un aiguilleur : il lit `G.theme.canvas.renderer` (`'classic'` ou `'palette'`) et conserve la caméra au changement.
 - Pastel n'a pas de feuille `css/themes/` (`sheet: false`) : la feuille de base `style.css` suffit. Ses données de couleur sont celles d'origine (aucune transformation).
 - Pour un nouveau thème : copier une entrée de `theme.js`, ajouter son id à la liste de l'en-tête de `index.html`, et soit une palette (`renderer` omis), soit son propre moteur dans `G.renderers`.
+
+## Thèmes « Néon orbital » et « Atelier d'aquarelle »
+Cinq thèmes au total (Pastel doux, Chronique enluminée, Vapeur 1900, Néon orbital, Atelier d'aquarelle).
+- **Néon orbital** (`neon`, futuriste) : nuit bleue, plaques « holo » (verre sombre, teinte translucide, contour lumineux, repères d'angle), routes en faisceau, niveaux en chevrons, cadre HUD, fond en grille, terrain lumineux (`glowDecor`) avec lignes de balayage (`scan`). Polices Orbitron et Rajdhani.
+- **Atelier d'aquarelle** (`atelier`, artistique) : papier chaud, lavis d'aquarelle (`washStyle: 'paint'`, taches irrégulières qui se mêlent), plaques de gouache au contour fait main (`plaque.style: 'paint'`, `wob()`), coins arrondis (`corner: 'round'`), routes au pinceau, niveaux en points de peinture, cadre peint avec rubans de masquage, fond de toile. Polices Caveat et Quicksand.
+- Nouvelles clés de palette du canvas, toutes facultatives (les anciens thèmes ne changent pas) : `corner`, `washStyle`, `glowDecor`, `scan`, `mapShadow`, `selGlow`, `selLine`, `plaque.style` (`holo` | `paint`) et `plaque.back`, `frame` (`hud` | `paint`), `desk` (`grid` | `canvas`), `road.kind` (`beam` | `brush`), `level` (`pip` | `dot`).

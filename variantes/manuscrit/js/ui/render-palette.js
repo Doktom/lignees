@@ -84,9 +84,30 @@ G.renderers.palette = (function () {
 
   // Rectangle aux angles coupés (plaque de gravure ou de laiton).
   function cut(c, x, y, w, h, k) {
+    if (P.corner === 'round') { // coins arrondis (thème Atelier)
+      const r = Math.min(Math.min(w, h) / 2, k * 1.8 + 2);
+      c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath();
+      return;
+    }
     c.beginPath();
     c.moveTo(x + k, y); c.lineTo(x + w - k, y); c.lineTo(x + w, y + k); c.lineTo(x + w, y + h - k);
     c.lineTo(x + w - k, y + h); c.lineTo(x + k, y + h); c.lineTo(x, y + h - k); c.lineTo(x, y + k); c.closePath();
+  }
+
+  // Contour « fait main » : quatre côtés très légèrement ondulés, différents pour chaque graine.
+  function wob(c, x, y, w, h, seed, amp) {
+    const j = i => (hash(seed, i, 5) - 0.5) * 2 * amp, r = Math.min(w, h) * 0.22;
+    c.beginPath();
+    c.moveTo(x + r, y + j(0));
+    c.quadraticCurveTo(x + w * 0.5, y + j(1) * 1.6, x + w - r, y + j(2));
+    c.quadraticCurveTo(x + w + j(3), y + j(4), x + w + j(5), y + r);
+    c.quadraticCurveTo(x + w + j(6) * 1.6, y + h * 0.5, x + w + j(7), y + h - r);
+    c.quadraticCurveTo(x + w + j(8), y + h + j(9), x + w - r, y + h + j(10));
+    c.quadraticCurveTo(x + w * 0.5, y + h + j(11) * 1.6, x + r, y + h + j(12));
+    c.quadraticCurveTo(x + j(13), y + h + j(14), x + j(15), y + h - r);
+    c.quadraticCurveTo(x + j(16) * 1.6, y + h * 0.5, x + j(17), y + r);
+    c.quadraticCurveTo(x + j(18), y + j(19), x + r, y + j(0));
+    c.closePath();
   }
 
   function starPath(c, x, y, r) {
@@ -212,6 +233,17 @@ G.renderers.palette = (function () {
         c.beginPath(); c.arc(x, y, 4.2, 0, Math.PI * 2); c.fill(); c.stroke();
         c.fillStyle = 'rgba(255,230,180,0.28)'; c.beginPath(); c.arc(x - 1.3, y - 1.3, 1.5, 0, Math.PI * 2); c.fill();
       }
+    } else if (P.desk === 'grid') { // fond de console : nuit bleue et quadrillage lumineux
+      const g = c.createLinearGradient(0, 0, sz, sz); g.addColorStop(0, '#060a16'); g.addColorStop(1, '#0a1226');
+      c.fillStyle = g; c.fillRect(0, 0, sz, sz);
+      for (let i = 0; i <= sz; i += 32) { c.fillStyle = i % 128 === 0 ? 'rgba(25,211,255,0.16)' : 'rgba(25,211,255,0.06)'; c.fillRect(i, 0, 1, sz); c.fillRect(0, i, sz, 1); }
+      for (let i = 0; i < 24; i++) { c.fillStyle = 'rgba(160,230,255,' + (0.1 + hash(i, 6, 1) * 0.25) + ')'; c.fillRect(Math.round(hash(i, 6, 2) * 8) * 32 - 1, Math.round(hash(i, 6, 3) * 8) * 32 - 1, 3, 3); }
+    } else if (P.desk === 'canvas') { // toile de lin : trame fine et éclaboussures de peinture
+      c.fillStyle = '#d9d0bf'; c.fillRect(0, 0, sz, sz);
+      for (let i = 0; i < sz; i += 2) { c.fillStyle = 'rgba(120,100,70,' + (0.04 + hash(i, 7, 1) * 0.05) + ')'; c.fillRect(i, 0, 1, sz); c.fillStyle = 'rgba(255,250,235,' + (0.05 + hash(i, 7, 2) * 0.07) + ')'; c.fillRect(0, i, sz, 1); }
+      const sp = ['#e8a199', '#9fc9d8', '#e9cd7a', '#a9c9a0'];
+      for (let i = 0; i < 9; i++) { c.fillStyle = sp[i % 4]; c.globalAlpha = 0.22; c.beginPath(); c.arc(hash(i, 8, 1) * sz, hash(i, 8, 2) * sz, 1.5 + hash(i, 8, 3) * 3.5, 0, Math.PI * 2); c.fill(); }
+      c.globalAlpha = 1;
     } else {
       c.fillStyle = '#35261a'; c.fillRect(0, 0, sz, sz);
       for (let i = 0; i < 150; i++) {
@@ -228,13 +260,60 @@ G.renderers.palette = (function () {
     const w = G.map.W * TS, h = G.map.H * TS, o = document.createElement('canvas');
     o.width = w + PAD * 2; o.height = h + PAD * 2;
     const c = o.getContext('2d');
-    c.shadowColor = 'rgba(0,0,0,0.65)'; c.shadowBlur = 30; c.shadowOffsetX = 7; c.shadowOffsetY = 11;
+    const S = P.mapShadow || { color: 'rgba(0,0,0,0.65)', blur: 30, ox: 7, oy: 11 };
+    c.shadowColor = S.color; c.shadowBlur = S.blur; c.shadowOffsetX = S.ox; c.shadowOffsetY = S.oy;
     c.fillStyle = '#000'; c.fillRect(PAD, PAD, w, h);
     shadowCache = o;
   }
 
   // ---------- Cadre de la carte ----------
-  function mapFrame(c, w, h) { if (P.frame === 'brass') brassFrame(c, w, h); else tickFrame(c, w, h); }
+  function mapFrame(c, w, h) {
+    if (P.frame === 'brass') brassFrame(c, w, h);
+    else if (P.frame === 'hud') hudFrame(c, w, h);
+    else if (P.frame === 'paint') paintFrame(c, w, h);
+    else tickFrame(c, w, h);
+  }
+
+  // Cadre d'écran de contrôle : filet lumineux, repères d'angle et graduations.
+  function hudFrame(c, w, h) {
+    c.save();
+    c.shadowColor = P.accent; c.shadowBlur = 8;
+    c.strokeStyle = P.gold; c.lineWidth = 1.4; c.strokeRect(9.5, 9.5, w - 19, h - 19);
+    c.lineWidth = 4;
+    const L = 46;
+    for (const [x, y, sx, sy] of [[5, 5, 1, 1], [w - 5, 5, -1, 1], [5, h - 5, 1, -1], [w - 5, h - 5, -1, -1]]) {
+      c.strokeStyle = P.accent; c.beginPath(); c.moveTo(x, y + sy * L); c.lineTo(x, y); c.lineTo(x + sx * L, y); c.stroke();
+    }
+    c.shadowBlur = 0; c.lineWidth = 1; c.strokeStyle = P.gold; c.globalAlpha = 0.7;
+    for (let x = 60; x < w - 60; x += TS / 2) { const t = (x / (TS / 2)) % 4 === 0 ? 10 : 5; c.beginPath(); c.moveTo(x, 9); c.lineTo(x, 9 + t); c.moveTo(x, h - 9); c.lineTo(x, h - 9 - t); c.stroke(); }
+    for (let y = 60; y < h - 60; y += TS / 2) { const t = (y / (TS / 2)) % 4 === 0 ? 10 : 5; c.beginPath(); c.moveTo(9, y); c.lineTo(9 + t, y); c.moveTo(w - 9, y); c.lineTo(w - 9 - t, y); c.stroke(); }
+    c.restore();
+  }
+
+  // Cadre d'aquarelle : traits de pinceau sur les quatre bords et morceaux de ruban de masquage aux angles.
+  function paintFrame(c, w, h) {
+    c.save();
+    c.lineCap = 'round'; c.lineJoin = 'round';
+    const edge = (x0, y0, x1, y1, k) => {
+      for (let pass = 0; pass < 3; pass++) {
+        c.strokeStyle = pass === 0 ? P.ink : pass === 1 ? P.gold : P.accent; c.globalAlpha = pass === 0 ? 0.85 : 0.5; c.lineWidth = pass === 0 ? 3 : 2 - pass * 0.4;
+        c.beginPath(); c.moveTo(x0, y0);
+        const n = 14;
+        for (let i = 1; i <= n; i++) { const t = i / n, jx = (hash(k, i + pass * 20, 1) - 0.5) * 3.2, jy = (hash(k, i + pass * 20, 2) - 0.5) * 3.2; c.lineTo(x0 + (x1 - x0) * t + jx, y0 + (y1 - y0) * t + jy + pass * 3); }
+        c.stroke();
+      }
+    };
+    edge(10, 10, w - 10, 10, 1); edge(10, h - 13, w - 10, h - 13, 2); edge(10, 10, 10, h - 10, 3); edge(w - 13, 10, w - 13, h - 10, 4);
+    c.globalAlpha = 0.78;
+    const tape = ['#f2c14e', '#e8756a', '#6fb7c9', '#a68be0'];
+    [[26, 20, -0.5], [w - 26, 22, 0.45], [28, h - 22, 0.4], [w - 28, h - 20, -0.45]].forEach(([x, y, a], i) => {
+      c.save(); c.translate(x, y); c.rotate(a);
+      c.fillStyle = tape[i]; c.fillRect(-26, -9, 52, 18);
+      c.globalAlpha = 0.25; c.fillStyle = '#fff'; for (let z = -22; z < 24; z += 6) c.fillRect(z, -9, 2, 18);
+      c.restore(); c.globalAlpha = 0.78;
+    });
+    c.restore();
+  }
 
   // Bande graduée en alternance, double filet, fleurons d'angle.
   function tickFrame(c, w, h) {
@@ -314,11 +393,16 @@ G.renderers.palette = (function () {
     c.fillRect(0, 0, off.width, off.height);
 
     // 1. Lavis : une teinte par type de terrain, légèrement variable d'une case à l'autre.
+    //    Aquarelle : chaque case est une tache irrégulière qui déborde sur ses voisines (les pigments se mêlent).
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
-      const def = G.TERRAIN[tileAt(x, y)];
-      c.fillStyle = shade(def.color, (hash(x, y, 77) - 0.5) * P.washVar);
-      c.fillRect(x * TS, y * TS, TS, TS);
+      const def = G.TERRAIN[tileAt(x, y)], col = shade(def.color, (hash(x, y, 77) - 0.5) * P.washVar);
+      if (P.washStyle === 'paint') {
+        c.globalAlpha = 0.9; c.fillStyle = col; wob(c, x * TS - 6, y * TS - 6, TS + 12, TS + 12, x * 131 + y * 7, 5); c.fill();
+        c.globalAlpha = 0.22; c.fillStyle = shade(def.color, -0.16); wob(c, x * TS + 5, y * TS + 6, TS - 12, TS - 12, x * 17 + y * 91, 4); c.fill();
+        c.globalAlpha = 1;
+      } else { c.fillStyle = col; c.fillRect(x * TS, y * TS, TS, TS); }
     }
+    if (P.glowDecor) { c.shadowColor = P.glowDecor; c.shadowBlur = 5; } // néon : tout ce qui suit est lumineux
 
     // 2. Quadrillage de géomètre, très discret.
     c.strokeStyle = P.grid; c.lineWidth = 1;
@@ -347,6 +431,8 @@ G.renderers.palette = (function () {
     // 4. Décors dessinés au trait.
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) drawDecor(c, tileAt(x, y), x, y, x * TS, y * TS);
 
+    c.shadowBlur = 0; c.shadowColor = 'transparent';
+    if (P.scan) { c.fillStyle = P.scan; for (let sy = 0; sy < off.height; sy += 4) c.fillRect(0, sy, off.width, 1); } // lignes de balayage
     // 5. Terre inconnue : lavis sombre et hachures en dehors du territoire.
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
       if (run.owned[y * W + x]) continue;
@@ -595,6 +681,31 @@ G.renderers.palette = (function () {
   // Plaque d'un bâtiment : ombre dure, corps teinté, reflet, contour, filet intérieur, rivets éventuels.
   function drawPlaque(x0, y0, s, base) {
     const q = P.plaque, k = q.k;
+    if (q.style === 'holo') { // verre sombre, teinte translucide, contour lumineux et repères d'angle
+      cut(ctx, x0, y0, s, s, k); ctx.fillStyle = q.back; ctx.fill();
+      ctx.globalAlpha = 0.42; cut(ctx, x0, y0, s, s, k); ctx.fillStyle = base; ctx.fill(); ctx.globalAlpha = 1;
+      const gl = ctx.createLinearGradient(0, y0, 0, y0 + s);
+      gl.addColorStop(0, q.glossTop); gl.addColorStop(0.55, q.glossMid); gl.addColorStop(1, q.glossBot);
+      cut(ctx, x0, y0, s, s, k); ctx.fillStyle = gl; ctx.fill();
+      ctx.save(); ctx.shadowColor = shade(base, 0.2); ctx.shadowBlur = 9;
+      ctx.strokeStyle = shade(base, 0.35); ctx.lineWidth = q.outlineW; cut(ctx, x0, y0, s, s, k); ctx.stroke(); ctx.restore();
+      ctx.strokeStyle = q.rim; ctx.lineWidth = 1.6;
+      const L = 7;
+      for (const [cx, cy, sx, sy] of [[x0 + 3, y0 + 3, 1, 1], [x0 + s - 3, y0 + 3, -1, 1], [x0 + 3, y0 + s - 3, 1, -1], [x0 + s - 3, y0 + s - 3, -1, -1]]) { ctx.beginPath(); ctx.moveTo(cx, cy + sy * L); ctx.lineTo(cx, cy); ctx.lineTo(cx + sx * L, cy); ctx.stroke(); }
+      return;
+    }
+    if (q.style === 'paint') { // tache de gouache cernée d'un trait de crayon, avec un reflet de pinceau
+      const seed = Math.round(x0 * 7 + y0 * 13);
+      ctx.fillStyle = q.shadow; wob(ctx, x0 + 2.5, y0 + 3.5, s, s, seed, 1.6); ctx.fill();
+      wob(ctx, x0, y0, s, s, seed, 1.6); ctx.fillStyle = base; ctx.fill();
+      const gl = ctx.createLinearGradient(0, y0, 0, y0 + s);
+      gl.addColorStop(0, q.glossTop); gl.addColorStop(0.55, q.glossMid); gl.addColorStop(1, q.glossBot);
+      wob(ctx, x0, y0, s, s, seed, 1.6); ctx.fillStyle = gl; ctx.fill();
+      ctx.strokeStyle = q.outline; ctx.lineWidth = q.outlineW; wob(ctx, x0, y0, s, s, seed, 1.6); ctx.stroke();
+      ctx.strokeStyle = q.rim; ctx.lineWidth = 2; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(x0 + 7, y0 + 6.5); ctx.quadraticCurveTo(x0 + s * 0.4, y0 + 4, x0 + s * 0.62, y0 + 6.5); ctx.stroke();
+      return;
+    }
     ctx.fillStyle = q.shadow; cut(ctx, x0 + 2.5, y0 + 3, s, s, k); ctx.fill();
     cut(ctx, x0, y0, s, s, k); ctx.fillStyle = base; ctx.fill();
     const gl = ctx.createLinearGradient(0, y0, 0, y0 + s);
@@ -682,7 +793,9 @@ G.renderers.palette = (function () {
         const n = lvl - 1, ly = py + o + s - 15, lx = px + o + 9;
         ctx.lineWidth = 0.9; ctx.strokeStyle = P.ink; ctx.fillStyle = P.gold;
         const mark = (x, r) => {
-          if (P.level === 'cog') { gearPath(ctx, x, ly, r + 0.6, 7); ctx.fill(); ctx.stroke(); ctx.fillStyle = P.ink; ctx.beginPath(); ctx.arc(x, ly, r * 0.32, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = P.gold; }
+          if (P.level === 'pip') { ctx.strokeStyle = P.gold; ctx.lineWidth = 2; ctx.save(); ctx.shadowColor = P.gold; ctx.shadowBlur = 5; ctx.beginPath(); ctx.moveTo(x - 3.2, ly + 2.4); ctx.lineTo(x, ly - 2.6); ctx.lineTo(x + 3.2, ly + 2.4); ctx.stroke(); ctx.restore(); ctx.strokeStyle = P.ink; }
+          else if (P.level === 'dot') { ctx.beginPath(); ctx.arc(x, ly, r * 0.85, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); }
+          else if (P.level === 'cog') { gearPath(ctx, x, ly, r + 0.6, 7); ctx.fill(); ctx.stroke(); ctx.fillStyle = P.ink; ctx.beginPath(); ctx.arc(x, ly, r * 0.32, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = P.gold; }
           else { starPath(ctx, x, ly, r); ctx.fill(); ctx.stroke(); }
         };
         if (n <= 4) for (let i = 0; i < n; i++) mark(lx + i * 8, 4);
@@ -715,8 +828,8 @@ G.renderers.palette = (function () {
   function drawSelection(px, py) {
     if (P.select === 'glow') {
       ctx.save();
-      ctx.shadowColor = 'rgba(255,196,90,0.9)'; ctx.shadowBlur = 14;
-      ctx.strokeStyle = '#ffd27a'; ctx.lineWidth = 3; cut(ctx, px + 1, py + 1, TS - 2, TS - 2, 6); ctx.stroke();
+      ctx.shadowColor = P.selGlow || 'rgba(255,196,90,0.9)'; ctx.shadowBlur = 14;
+      ctx.strokeStyle = P.selLine || '#ffd27a'; ctx.lineWidth = 3; cut(ctx, px + 1, py + 1, TS - 2, TS - 2, 6); ctx.stroke();
       ctx.restore();
       ctx.strokeStyle = 'rgba(20,14,8,0.8)'; ctx.lineWidth = 1; cut(ctx, px + 4.5, py + 4.5, TS - 9, TS - 9, 4); ctx.stroke();
     } else {
@@ -745,6 +858,23 @@ G.renderers.palette = (function () {
       ctx.fillStyle = R.hub; ctx.strokeStyle = R.hubStroke; ctx.lineWidth = 1.4;
       ctx.beginPath(); ctx.arc(cx, cy, 5.5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
       ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.beginPath(); ctx.arc(cx, cy, 1.8, 0, Math.PI * 2); ctx.fill();
+    } else if (R.kind === 'beam') { // faisceau lumineux
+      ctx.save(); ctx.shadowColor = R.line; ctx.shadowBlur = 9; ctx.strokeStyle = R.line; ctx.lineWidth = 2.6;
+      for (const [dx, dy] of G.economy.DIRS) { if (!link(dx, dy)) continue; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + dx * TS / 2, cy + dy * TS / 2); ctx.stroke(); }
+      ctx.restore();
+      ctx.fillStyle = R.hub; ctx.strokeStyle = R.hubStroke; ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.moveTo(cx, cy - 6); ctx.lineTo(cx + 6, cy); ctx.lineTo(cx, cy + 6); ctx.lineTo(cx - 6, cy); ctx.closePath(); ctx.fill(); ctx.stroke();
+    } else if (R.kind === 'brush') { // coups de pinceau épais
+      for (const [dx, dy] of G.economy.DIRS) {
+        if (!link(dx, dy)) continue;
+        ctx.strokeStyle = R.line; ctx.lineWidth = 6; ctx.globalAlpha = 0.9;
+        ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + dx * TS / 2, cy + dy * TS / 2); ctx.stroke();
+        ctx.strokeStyle = R.edge; ctx.lineWidth = 1.6; ctx.globalAlpha = 0.7;
+        ctx.beginPath(); ctx.moveTo(cx + dy * 3, cy + dx * 3); ctx.lineTo(cx + dx * TS / 2 + dy * 3, cy + dy * TS / 2 + dx * 3); ctx.stroke();
+        ctx.globalAlpha = 1;
+      }
+      ctx.fillStyle = R.hub; ctx.strokeStyle = R.hubStroke; ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.arc(cx, cy, 6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
     } else {
       ctx.strokeStyle = R.line; ctx.lineWidth = 2.4;
       ctx.setLineDash([5, 4]);

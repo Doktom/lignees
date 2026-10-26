@@ -1,6 +1,6 @@
 # Lignées — édition à thèmes : consignes pour Claude
 
-Copie de Lignées 1.9 avec **deux thèmes graphiques** au choix dans Paramètres → Apparence : « Chronique enluminée » (parchemin, par défaut) et « Vapeur 1900 » (fonte sombre et douce, laiton). Le gameplay est identique à la version pastel située deux dossiers plus haut. **Lire `STYLE.md`** pour la direction artistique et l'architecture des thèmes, puis `DESIGN.md` pour les règles de jeu (communes aux deux versions).
+Copie de Lignées 1.9 avec **cinq thèmes graphiques** au choix dans Paramètres → Apparence : « Pastel doux », « Chronique enluminée » (parchemin, par défaut), « Vapeur 1900 », « Néon orbital » et « Atelier d'aquarelle ». Le gameplay est identique à la version pastel située deux dossiers plus haut. **Lire `STYLE.md`** pour la direction artistique et l'architecture des thèmes, puis `DESIGN.md` pour les règles de jeu (communes aux deux versions).
 
 ## Ce qui est propre à cette édition
 - `css/themes/<id>.css` (chargé après `style.css`) : une feuille de style par thème ; `js/ui/theme.js` : registre des thèmes (palette des données + palette du canvas) ; `js/ui/render.js` : dessin de la carte piloté par la palette ; `index.html` : script d'en-tête qui charge la feuille du thème mémorisé.

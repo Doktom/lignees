@@ -120,6 +120,99 @@ G.theme = (function () {
   };
 
   // ======================================================================================
+  // Thème 4 — Néon orbital : console de contrôle futuriste. Nuit bleue, verre fumé, cyan et magenta lumineux.
+  // ======================================================================================
+  const NEON = {
+    id: 'neon', name: 'Néon orbital', tagline: 'Néon orbital',
+    desc: 'Console de contrôle d\'une colonie stellaire : nuit bleue, hologrammes en verre, faisceaux et contours lumineux cyan et magenta.',
+    swatch: ['#0a1424', '#19d3ff', '#ff3ea5', '#34f0b0'],
+    data: {
+      wash: { plaine: '#16263f', fertile: '#16403d', foret: '#113a31', colline: '#2a2e52', eau: '#0b3b6b', montagne: '#2b3352' },
+      cat: { housing: '#ff6fb1', food: '#f5d04a', raw: '#d6935a', craft: '#ff8a4a', energy: '#ffe14d', science: '#6c8cff', storage: '#59d6c4', military: '#ff4f6a', wonder: '#ffd84d', core: '#b8f0ff' },
+      era: ['#8e6bff', '#19d3ff', '#34f0b0', '#ffc247', '#ff3ea5'],
+      res: ['#6fe8ff', 0.15], enemy: ['#ff2e63', 0.3], soldier: ['#19d3ff', 0.4],
+    },
+    canvas: {
+      serif: '"Rajdhani", "Segoe UI", sans-serif', title: '"Orbitron", "Segoe UI", sans-serif',
+      iconFilter: 'saturate(1.25) brightness(1.12) contrast(1.05) drop-shadow(0 0 2px rgba(120,230,255,0.55))',
+      ink: '#04101c', paper: '#0a1424', gold: '#19d3ff', accent: '#ff3ea5', good: '#34f0b0', info: '#6c8cff',
+      washVar: 0.10, grid: 'rgba(25,211,255,0.20)',
+      shore: 'rgba(80,220,255,0.85)', shoreSoft: 'rgba(80,220,255,0.3)', wave: 'rgba(120,230,255,0.42)',
+      treeStroke: '#34f0b0', treeA: '#0f4a3e', treeB: '#12594a',
+      moundFill: 'rgba(70,90,170,0.55)', moundStroke: '#8fa6ff',
+      peakFill: '#1a2547', peakStroke: '#7fe9ff', peakRidge: 'rgba(160,240,255,0.7)',
+      furrow: 'rgba(52,240,176,0.5)', tuft: 'rgba(52,240,176,0.55)',
+      unownedFill: 'rgba(2,5,12,0.58)', unownedHatch: 'rgba(25,211,255,0.10)', border: 'rgba(255,62,165,0.95)',
+      grainDark: '0,0,0', grainLight: '120,220,255', stain: '25,120,200', stainA: 0.06, edge: '0,0,0', edgeA: 0.45,
+      frame: 'hud', desk: 'grid', vignette: '0,4,12', vignetteA: 0.6,
+      glowDecor: 'rgba(25,211,255,0.55)', scan: 'rgba(0,0,0,0.10)', mapShadow: { color: 'rgba(25,211,255,0.38)', blur: 34, ox: 0, oy: 0 },
+      compass: { face: '#0a1424', ring: '#19d3ff', light: '#bfefff', dark: '#2a5f86', north: '#ff3ea5', hub: '#19d3ff', text: '#7fe9ff' },
+      plaque: { k: 7, shadow: 'rgba(0,0,0,0.55)', outline: '#19d3ff', outlineW: 1.6, rim: '#bff6ff', rimW: 1.4, rimInset: 3,
+        glossTop: 'rgba(190,245,255,0.28)', glossMid: 'rgba(190,245,255,0)', glossBot: 'rgba(0,0,0,0.35)', rivets: false, rivet: '#19d3ff', style: 'holo', back: '#0a1428' },
+      ruined: '#3a3f55', paused: '#24304a', crack: 'rgba(255,95,122,0.9)', wall: 'rgba(25,211,255,0.25)',
+      gauge: { track: 'rgba(0,0,0,0.6)', good: '#34f0b0', mid: '#ffc247', bad: '#ff5f7a', outline: '#19d3ff' },
+      label: { fill: '#0a1428', stroke: '#19d3ff', text: '#dff3ff', good: '#34f0b0', bad: '#ff7f95' },
+      level: 'pip', select: 'glow', selGlow: 'rgba(25,211,255,0.95)', selLine: '#7fe9ff', seal: '#ff3ea5',
+      road: { kind: 'beam', line: '#19d3ff', hub: '#0a1428', hubStroke: '#7fe9ff' },
+      spark: '60,230,255', sparkStroke: '#04101c',
+      hover: { own: 'rgba(25,211,255,0.55)', buy: 'rgba(52,240,176,0.95)', none: 'rgba(25,211,255,0.2)' },
+      place: { ghost: 'rgba(12,22,40,0.9)', bad: 'rgba(255,95,122,0.5)', ok: '#34f0b0', no: '#ff5f7a', adjGood: '#34f0b0', adjBad: '#ff7f95',
+        zoneOk: 'rgba(25,211,255,0.2)', zoneOkLine: 'rgba(80,230,255,0.9)', zoneElec: 'rgba(255,225,77,0.28)', zoneElecLine: 'rgba(255,225,77,0.95)', zoneFar: 'rgba(255,62,165,0.65)', elecRing: 'rgba(255,225,77,0.95)', annex: '255,62,165' },
+      ring: { tower: ['rgba(255,95,122,0.10)', 'rgba(255,95,122,0.85)'], squad: ['rgba(25,211,255,0.10)', 'rgba(80,230,255,0.9)'] },
+      waveArrow: '255,62,165', puff: { gold: '25,211,255', plain: '220,245,255', edge: '4,16,28' },
+      season: { veil: 'rgba(120,170,255,0.12)', snow: 'rgba(235,248,255,0.9)', snowShade: 'rgba(0,10,30,0.3)' },
+      logi: { veil: 'rgba(3,8,18,0.66)', ok: '#34f0b0', warn: '#ffc247', bad: '#ff5f7a' },
+      enemyCross: 'rgba(255,220,230,0.8)', helmet: '#19d3ff', projectile: '#7fe9ff', projectileBig: '#ff3ea5', projectileRim: '#04101c',
+    },
+  };
+
+  // ======================================================================================
+  // Thème 5 — Atelier d'aquarelle : carnet d'artiste. Papier chaud, lavis qui se mêlent, gouache et traits de crayon.
+  // ======================================================================================
+  const ATELIER = {
+    id: 'atelier', name: 'Atelier d\'aquarelle', tagline: 'Atelier d\'aquarelle',
+    desc: 'Un carnet d\'artiste : papier chaud, lavis d\'aquarelle qui se mêlent, taches de gouache, rubans de masquage et lettres tracées à la main.',
+    swatch: ['#f6efe0', '#d95d6a', '#e0a030', '#4f9c85'],
+    data: {
+      wash: { plaine: '#eadfae', fertile: '#cfe0a0', foret: '#9fc59a', colline: '#e3c28a', eau: '#8cc6e0', montagne: '#cdc3d6' },
+      cat: { housing: '#f29aa6', food: '#f7d36b', raw: '#c9a77c', craft: '#f2a36b', energy: '#f4cf5a', science: '#8fa8e8', storage: '#9ccfc0', military: '#d9707a', wonder: '#f0c84f', core: '#e8d28a' },
+      era: ['#c58f5f', '#e0b24f', '#6f8fd6', '#6bb39a', '#8c7fd1'],
+      res: ['#b86b4a', 0.12], enemy: ['#7a2f3a', 0.3], soldier: ['#2f4f9a', 0.3],
+    },
+    canvas: {
+      serif: '"Quicksand", "Segoe UI", sans-serif', title: '"Caveat", "Segoe Print", cursive',
+      iconFilter: 'saturate(1.12) contrast(0.97) brightness(1.03)',
+      ink: '#3a3140', paper: '#f6efe0', gold: '#e0a030', accent: '#d95d6a', good: '#4f9c85', info: '#4a6fb5',
+      washVar: 0.07, grid: 'rgba(90,70,60,0.07)',
+      shore: 'rgba(52,100,140,0.75)', shoreSoft: 'rgba(52,100,140,0.28)', wave: 'rgba(70,130,170,0.45)',
+      treeStroke: '#2f4a34', treeA: '#7fae78', treeB: '#8cbb83',
+      moundFill: 'rgba(236,196,130,0.8)', moundStroke: '#7a5a3a',
+      peakFill: '#e6dfee', peakStroke: '#4b4058', peakRidge: 'rgba(90,75,110,0.7)',
+      furrow: 'rgba(110,140,60,0.6)', tuft: 'rgba(80,120,60,0.65)',
+      unownedFill: 'rgba(70,55,80,0.24)', unownedHatch: 'rgba(70,55,80,0.10)', border: 'rgba(217,93,106,0.95)',
+      grainDark: '80,60,50', grainLight: '255,252,240', stain: '200,140,90', stainA: 0.08, edge: '120,90,60', edgeA: 0.22,
+      frame: 'paint', desk: 'canvas', vignette: '60,40,30', vignetteA: 0.28, corner: 'round', washStyle: 'paint',
+      compass: { face: '#f8f1e0', ring: '#3a3140', light: '#fff8e8', dark: '#a89bb6', north: '#d95d6a', hub: '#e0a030', text: '#3a3140' },
+      plaque: { k: 6, shadow: 'rgba(58,49,64,0.28)', outline: '#3a3140', outlineW: 1.8, rim: 'rgba(255,255,255,0.7)', rimW: 2, rimInset: 3,
+        glossTop: 'rgba(255,255,255,0.35)', glossMid: 'rgba(255,255,255,0)', glossBot: 'rgba(70,40,40,0.12)', rivets: false, rivet: '#e0a030', style: 'paint' },
+      ruined: '#b4aab0', paused: '#d9d1d4', crack: 'rgba(58,49,64,0.75)', wall: 'rgba(58,49,64,0.3)',
+      gauge: { track: 'rgba(58,49,64,0.22)', good: '#5aa68a', mid: '#e0a030', bad: '#d95d6a', outline: '#3a3140' },
+      label: { fill: '#fff8e8', stroke: '#3a3140', text: '#3a3140', good: '#2f7a62', bad: '#c0485a' },
+      level: 'dot', select: 'double', seal: '#d95d6a',
+      road: { kind: 'brush', line: '#e3b66a', edge: '#b98a3c', hub: '#f4dca0', hubStroke: '#8a6a30' },
+      spark: '240,190,70', sparkStroke: '#3a3140',
+      hover: { own: 'rgba(58,49,64,0.45)', buy: 'rgba(79,156,133,0.95)', none: 'rgba(58,49,64,0.2)' },
+      place: { ghost: 'rgba(255,250,236,0.92)', bad: 'rgba(217,93,106,0.5)', ok: '#4f9c85', no: '#d95d6a', adjGood: '#3f8a70', adjBad: '#c0485a',
+        zoneOk: 'rgba(95,170,140,0.30)', zoneOkLine: 'rgba(60,130,105,0.85)', zoneElec: 'rgba(240,190,70,0.38)', zoneElecLine: 'rgba(190,140,30,0.9)', zoneFar: 'rgba(200,120,60,0.7)', elecRing: 'rgba(220,160,40,0.95)', annex: '217,93,106' },
+      ring: { tower: ['rgba(217,93,106,0.08)', 'rgba(217,93,106,0.75)'], squad: ['rgba(74,111,181,0.08)', 'rgba(74,111,181,0.75)'] },
+      waveArrow: '217,93,106', puff: { gold: '224,160,48', plain: '255,250,236', edge: '58,49,64' },
+      season: { veil: 'rgba(200,215,235,0.2)', snow: 'rgba(255,255,255,0.95)', snowShade: 'rgba(90,100,130,0.2)' },
+      logi: { veil: 'rgba(248,240,224,0.62)', ok: '#5aa68a', warn: '#e0a030', bad: '#d95d6a' },
+      enemyCross: 'rgba(255,245,230,0.8)', helmet: '#e0a030', projectile: '#3a3140', projectileBig: '#7a3a8a', projectileRim: '#fff8e8',
+    },
+  };
+
+  // ======================================================================================
   // Thème 3 — Pastel doux : l'interface d'origine (V1), claire, arrondie, sans feuille de style propre.
   // Il utilise le moteur de rendu « classique » ; ses couleurs sont celles du jeu, sans transformation.
   // ======================================================================================
@@ -131,7 +224,7 @@ G.theme = (function () {
     canvas: { renderer: 'classic' },
   };
 
-  const THEMES = { pastel: PASTEL, manuscrit: MANUSCRIT, vapeur: VAPEUR };
+  const THEMES = { pastel: PASTEL, manuscrit: MANUSCRIT, vapeur: VAPEUR, neon: NEON, atelier: ATELIER };
   let cur = THEMES[DEFAULT];
 
   // Écrit les couleurs du thème dans les tables de données.

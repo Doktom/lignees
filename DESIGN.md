@@ -191,3 +191,6 @@ Mesure (Clan des collines, Paisible, 14 400 s) : avant, ère industrielle jamais
 - **Le décollage n'est plus la fin** : `logic.launch()` pose `run.launched` et la partie continue. Six recherches **infinies** (`p_*`, `post: true`, `repeat: 1.3`, `glory: 0.34` = 1 gloire toutes les ~3 recherches) s'ouvrent dans une bande « Au-delà des étoiles » de l'arbre (grille de 3 colonnes). `endRun` d'une lignée qui a décollé garde la raison `'launch'` (héritage ×1,5 et +50). La simulation du bot s'arrête au décollage.
 - **Cinématiques** (`js/ui/cinematic.js`) : scènes canvas procédurales par ère (aube antique, château au crépuscule, cheminées et locomotive, pas de tir sous les étoiles) et décollage. Désactivables (Paramètres → Cinématiques), jamais en mode Bot. Barres de cinéma, titre, intro et citation de Hulotte (`G.CINE`).
 - **Récit** (`js/data/story.js`) : 10 chapitres joués dans l'ordre (`G.CHAPTERS`, condition `when`, un toutes les 2 min au plus, jamais en vague). Les choix posent des drapeaux (`effects.flag` → `run.flags`) que les chapitres suivants relisent. 10 nouveaux événements aléatoires, ~35 nouvelles répliques (ambiance par ère `ambient0..5`, paliers, chapitres).
+
+## V1.9.2 — Deux thèmes de plus
+Néon orbital (futuriste) et Atelier d'aquarelle (artistique) ; extensions du moteur de rendu à palette, voir `STYLE.md`.

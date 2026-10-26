@@ -194,3 +194,6 @@ Mesure (Clan des collines, Paisible, 14 400 s) : avant, ère industrielle jamais
 
 ## V1.9.1 — Trois interfaces au choix
 Le thème Pastel doux (interface d'origine) rejoint les deux thèmes de l'édition à thèmes ; aiguilleur de rendu `render.js`, voir `STYLE.md`.
+
+## V1.9.2 — Deux thèmes de plus
+Néon orbital (futuriste) et Atelier d'aquarelle (artistique) ; extensions du moteur de rendu à palette, voir `STYLE.md`.
