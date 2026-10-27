@@ -23,7 +23,7 @@ G.render = (function () {
   }
 
   function resize() {
-    dpr = window.devicePixelRatio || 1;
+    dpr = Math.min(window.devicePixelRatio || 1, 2); // plafonné : les écrans mobiles à 3× ralentiraient le rendu
     const r = canvas.parentElement.getBoundingClientRect();
     cw = r.width; ch = r.height;
     canvas.width = Math.round(cw * dpr); canvas.height = Math.round(ch * dpr);

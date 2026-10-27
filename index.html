@@ -2,21 +2,25 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#fbfaf7">
   <title>Lignées</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/mobile.css">
 </head>
 <body>
   <div id="app">
     <header id="topbar"></header>
+    <button id="m-res-btn" aria-label="Ressources"></button>
     <aside id="left">
       <div id="resources"></div>
       <div id="hint" class="hint"></div>
     </aside>
     <main id="center">
       <canvas id="map"></canvas>
+      <div id="m-confirm"></div>
       <div id="toasts"></div>
     </main>
     <aside id="right">
@@ -25,6 +29,7 @@
       <div id="selection" class="hidden"></div>
     </aside>
   </div>
+  <div id="m-scrim"></div>
   <div id="modal-root"></div>
   <div id="tooltip"></div>
 
@@ -51,6 +56,7 @@
   <script src="js/ui/render.js"></script>
   <script src="js/ui/cinematic.js"></script>
   <script src="js/ui/lore.js"></script>
+  <script src="js/ui/mobile.js"></script>
   <script src="js/ui/ui.js"></script>
   <script src="js/main.js"></script>
 </body>

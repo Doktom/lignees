@@ -1,0 +1,120 @@
+/* Lignées — adaptation mobile.
+   Les classes sont posées sur <html> par js/ui/mobile.js :
+   .m (écran étroit), .touch (écran tactile), .sheet-open (panneau du bas déployé),
+   .res-open (tiroir des ressources ouvert), .placing-on (pose d'un bâtiment en cours). */
+
+html, body { overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
+body { touch-action: manipulation; -webkit-text-size-adjust: 100%; }
+#map { touch-action: none; }
+
+/* Éléments propres au mobile : invisibles sur grand écran. */
+#m-res-btn, #m-scrim, #m-grab, #m-confirm { display: none; }
+
+/* ---------- Écran tactile (toutes tailles) : cibles plus grandes ---------- */
+html.touch .btn { min-height: 40px; }
+html.touch .sp-btn { padding: 9px 10px; }
+html.touch .tab { min-height: 44px; }
+html.touch input, html.touch textarea, html.touch select { font-size: 16px; }
+html.touch .card { padding: 9px 10px; }
+html.touch #selection .close { width: 40px; height: 40px; top: 2px; right: 2px; font-size: 18px; }
+
+/* ---------- Écran étroit ---------- */
+html.m { --tabs-h: 50px; }
+html.m body { font-size: 15px; }
+
+html.m #app {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr);
+  height: 100vh; height: 100dvh;
+  padding-bottom: calc(var(--tabs-h) + env(safe-area-inset-bottom));
+}
+
+/* Barre du haut : une seule ligne, défilement horizontal, vitesse en premier. */
+html.m #topbar {
+  grid-column: 1; height: auto; min-height: 48px; flex-wrap: nowrap;
+  overflow-x: auto; overflow-y: hidden; gap: 6px;
+  padding: calc(env(safe-area-inset-top) + 6px) 10px 6px;
+  scrollbar-width: none; -webkit-overflow-scrolling: touch;
+}
+html.m #topbar::-webkit-scrollbar { display: none; }
+html.m #topbar > * { flex: none; }
+html.m #topbar .brand, html.m #topbar .spacer { display: none; }
+html.m #topbar .speed { order: -1; }
+html.m #topbar .btn { padding: 6px 10px; font-size: 13px; }
+
+/* Carte : tout l'espace restant ; le panneau du bas la recouvre quand il est ouvert. */
+html.m #center { grid-column: 1; grid-row: 3; }
+html.m #mapbtns { right: 10px; bottom: 10px; }
+html.m #lore { left: 10px; bottom: 10px; max-width: calc(100% - 20px); }
+html.m #overlay-ctrl { max-width: calc(100% - 70px); }
+html.m .botbar { font-size: 12px; }
+
+/* Bandeau des ressources (toucher = ouvrir le tiroir complet). */
+html.m #m-res-btn {
+  grid-column: 1; display: flex; align-items: center; gap: 6px; overflow-x: auto; white-space: nowrap;
+  padding: 6px 10px; border: 0; border-bottom: 1px solid var(--line); background: var(--panel-2);
+  font: inherit; font-size: 13px; text-align: left; cursor: pointer; scrollbar-width: none; min-height: 44px;
+}
+html.m #m-res-btn::-webkit-scrollbar { display: none; }
+html.m #m-res-btn .chip { flex: none; background: #fff; border: 1px solid var(--line); padding: 3px 9px; font-weight: 600; }
+html.m #m-res-btn .more { flex: none; margin-left: auto; color: var(--muted); font-size: 12px; }
+
+/* Tiroir des ressources (colonne de gauche). */
+html.m #left {
+  position: fixed; top: 0; bottom: 0; left: 0; width: min(86vw, 320px); z-index: 25;
+  padding-top: calc(env(safe-area-inset-top) + 12px); padding-bottom: calc(env(safe-area-inset-bottom) + 16px);
+  transform: translateX(-104%); transition: transform 0.25s ease; border-right: 1px solid var(--line);
+}
+html.m.res-open #left { transform: none; box-shadow: 8px 0 30px rgba(20, 25, 35, 0.22); }
+html.m #m-scrim { position: fixed; inset: 0; z-index: 24; background: rgba(30, 32, 36, 0.28); }
+html.m:not(.res-open) #m-scrim { display: none; }
+html.m.res-open #m-scrim { display: block; }
+
+/* Panneau du bas (colonne de droite) : onglets toujours visibles, contenu déployable. */
+html.m #right {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 15; height: auto;
+  border-left: 0; border-top: 1px solid var(--line); border-radius: 16px 16px 0 0;
+  box-shadow: 0 -6px 24px rgba(30, 35, 45, 0.14);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+html.m #tabs { padding: 4px 8px 0; border-bottom: 0; min-height: var(--tabs-h); }
+html.m #tabs .tab { font-size: 13px; }
+html.m:not(.sheet-open) #panel, html.m:not(.sheet-open) #selection { display: none; }
+html.m.sheet-open #right { height: 66vh; height: 66dvh; }
+html.m.sheet-open #tabs { border-bottom: 1px solid var(--line); }
+html.m.sheet-open #panel { padding: 8px 10px 16px; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+html.m #selection { max-height: 50%; padding: 10px 12px 14px; overscroll-behavior: contain; }
+
+html.m #m-grab { display: none; height: 18px; flex: none; align-items: center; justify-content: center; cursor: pointer; }
+html.m #m-grab i { width: 40px; height: 5px; border-radius: 3px; background: #d3cec2; }
+html.m.sheet-open #m-grab { display: flex; }
+
+/* Barre de confirmation de pose. */
+html.m.placing-on #mapbtns, html.m.placing-on #lore { display: none; }
+html.m #m-confirm {
+  position: absolute; left: 10px; right: 10px; bottom: 10px; z-index: 7; align-items: center; gap: 8px;
+  padding: 8px 8px 8px 12px; border-radius: 14px; background: rgba(255, 255, 255, 0.97);
+  border: 1px solid var(--line); box-shadow: 0 6px 20px rgba(40, 45, 55, 0.18);
+}
+html.m.placing-on #m-confirm { display: flex; }
+html.m #m-confirm .txt { flex: 1; min-width: 0; font-size: 13px; line-height: 1.3; }
+html.m #m-confirm .txt small { display: block; color: var(--muted); font-size: 12px; }
+html.m #m-confirm .btn { flex: none; padding: 8px 14px; }
+
+/* Fenêtres : presque plein écran. */
+html.m .modal {
+  padding: 16px 14px; width: calc(100vw - 16px); max-height: calc(100vh - 16px); max-height: calc(100dvh - 16px);
+  border-radius: 16px;
+}
+html.m .wide .modal { width: calc(100vw - 16px); max-height: calc(100vh - 16px); max-height: calc(100dvh - 16px); }
+html.m .dash-head { flex-wrap: wrap; }
+
+/* Paysage sur téléphone : panneau un peu plus haut, la carte reste visible à côté. */
+@media (max-height: 520px) {
+  html.m.sheet-open #right { height: 78vh; height: 78dvh; }
+  html.m { --tabs-h: 44px; }
+  html.m #tabs .tab { min-height: 38px; }
+}
+
+/* Infobulles : jamais plus larges que l'écran. */
+html.m #tooltip { max-width: calc(100vw - 16px); }

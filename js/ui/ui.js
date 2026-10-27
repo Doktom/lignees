@@ -757,6 +757,7 @@ G.ui = (function () {
     const r = tip.getBoundingClientRect();
     let x = ev.clientX + 14, y = ev.clientY + 14;
     if (x + r.width > window.innerWidth - 8) x = ev.clientX - r.width - 14;
+    x = Math.max(8, x);
     if (y + r.height > window.innerHeight - 8) y = window.innerHeight - r.height - 8;
     tip.style.left = x + 'px'; tip.style.top = y + 'px';
   }
@@ -1244,31 +1245,66 @@ G.ui = (function () {
   }
 
   // ---------- Saisie sur la carte ----------
+  // Souris : glisser = déplacer, clic = agir. Tactile : un doigt = déplacer ou toucher,
+  // deux doigts = déplacer et pincer pour zoomer. Pendant la pose d'un bâtiment, un toucher
+  // déplace le fantôme (le bouton « Poser » ou un second toucher au même endroit confirme).
   function bindCanvas(canvas) {
-    let down = null;
+    const ptrs = new Map();
+    let down = null, pinch = null;
+    const pinchState = () => {
+      const [a, b] = [...ptrs.values()];
+      return { d: Math.max(1, Math.hypot(a.x - b.x, a.y - b.y)), cx: (a.x + b.x) / 2, cy: (a.y + b.y) / 2 };
+    };
     canvas.addEventListener('pointerdown', e => {
-      if (e.button !== 0) return;
-      down = { x: e.offsetX, y: e.offsetY, lx: e.offsetX, ly: e.offsetY, drag: false };
-      if (ui.placing && G.BUILDINGS[ui.placing].road) { down.paint = true; paintRoad(G.render.screenToTile(e.offsetX, e.offsetY), down); }
+      ui.lastPointer = e.pointerType;
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      ptrs.set(e.pointerId, { x: e.offsetX, y: e.offsetY });
       canvas.setPointerCapture(e.pointerId);
+      if (ptrs.size === 2) { pinch = pinchState(); down = null; return; }
+      if (ptrs.size > 2) return;
+      down = { x: e.offsetX, y: e.offsetY, lx: e.offsetX, ly: e.offsetY, drag: false, touch: e.pointerType !== 'mouse' };
+      if (ui.placing && G.BUILDINGS[ui.placing].road) { down.paint = true; paintRoad(G.render.screenToTile(e.offsetX, e.offsetY), down); }
     });
     canvas.addEventListener('pointermove', e => {
-      ui.hover = G.render.screenToTile(e.offsetX, e.offsetY);
-      if (down && down.paint) { paintRoad(ui.hover, down); return; }
+      const p = ptrs.get(e.pointerId);
+      if (p) { p.x = e.offsetX; p.y = e.offsetY; }
+      if (pinch && ptrs.size >= 2) {
+        const n = pinchState();
+        G.render.zoomAt(n.cx, n.cy, n.d / pinch.d);
+        G.render.pan(n.cx - pinch.cx, n.cy - pinch.cy);
+        pinch = n;
+        return;
+      }
+      if (e.pointerType === 'mouse') ui.hover = G.render.screenToTile(e.offsetX, e.offsetY);
+      if (down && down.paint) { paintRoad(G.render.screenToTile(e.offsetX, e.offsetY), down); return; }
       if (down) {
-        if (!down.drag && Math.hypot(e.offsetX - down.x, e.offsetY - down.y) > 6) down.drag = true;
+        if (!down.drag && Math.hypot(e.offsetX - down.x, e.offsetY - down.y) > (down.touch ? 10 : 6)) down.drag = true;
         if (down.drag) { G.render.pan(e.offsetX - down.lx, e.offsetY - down.ly); canvas.style.cursor = 'grabbing'; }
         down.lx = e.offsetX; down.ly = e.offsetY;
       }
     });
+    const release = e => {
+      ptrs.delete(e.pointerId);
+      if (ptrs.size < 2) pinch = null;
+    };
     canvas.addEventListener('pointerup', e => {
-      if (!down) return;
-      const wasDrag = down.drag || down.paint;
+      const wasPinch = !!pinch || !ptrs.has(e.pointerId) || !down;
+      release(e);
+      if (wasPinch) { if (!ptrs.size) down = null; return; }
+      const wasDrag = down.drag || down.paint, touch = down.touch;
       down = null;
       canvas.style.cursor = '';
-      if (!wasDrag) clickTile(G.render.screenToTile(e.offsetX, e.offsetY));
+      if (wasDrag) return;
+      const t = G.render.screenToTile(e.offsetX, e.offsetY);
+      if (touch && ui.placing && !G.BUILDINGS[ui.placing].road) {
+        if (ui.touchTile && ui.touchTile.x === t.x && ui.touchTile.y === t.y) clickTile(t);
+        else { ui.touchTile = t; ui.hover = t; refresh(true); }
+        return;
+      }
+      clickTile(t);
     });
-    canvas.addEventListener('pointerleave', () => { ui.hover = null; });
+    canvas.addEventListener('pointercancel', e => { release(e); down = null; pinch = null; });
+    canvas.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') ui.hover = null; });
     canvas.addEventListener('wheel', e => {
       e.preventDefault();
       G.render.zoomAt(e.offsetX, e.offsetY, e.deltaY < 0 ? 1.12 : 1 / 1.12);
@@ -1332,6 +1368,7 @@ G.ui = (function () {
       if (ui._treeSig !== techTreeSig()) techTreeModal(true);
     }
     G.lore.check();
+    if (G.mobile) G.mobile.sync();
     // Ouvre automatiquement les choix de décrets en attente.
     if (!ui.modal && !G.run.over && G.run.pending.length) decreeModal();
   }
@@ -1358,8 +1395,9 @@ G.ui = (function () {
       }
     });
     bindCanvas($('#map'));
+    if (G.mobile) G.mobile.init();
   }
 
-  Object.assign(ui, { relations, launched, init, refresh, toast, eraTransition, runEnded, metaScreen, offlineModal, helpModal, closeModal, speed, eventModal });
+  Object.assign(ui, { clickTile, cancel, showTip: updateTooltip, relations, launched, init, refresh, toast, eraTransition, runEnded, metaScreen, offlineModal, helpModal, closeModal, speed, eventModal });
   return ui;
 })();
